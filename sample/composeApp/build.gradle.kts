@@ -72,7 +72,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        minSdk = 21
+        minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = 36
 
         applicationId = "sample.app.androidApp"

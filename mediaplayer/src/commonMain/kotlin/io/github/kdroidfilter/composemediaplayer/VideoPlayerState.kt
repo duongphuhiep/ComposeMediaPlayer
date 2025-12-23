@@ -20,33 +20,87 @@ import io.github.vinceglb.filekit.PlatformFile
  * @constructor Initializes an instance of the video player state.
  */
 @Stable
-expect open class VideoPlayerState() {
+interface VideoPlayerState {
 
     // Properties related to media state
     val hasMedia: Boolean
+
+    /**
+     * Indicates whether the video is currently playing.
+     */
     val isPlaying: Boolean
     val isLoading: Boolean
+
+    /**
+     * Controls the playback volume. Valid values are within the range of 0.0 (muted) to 1.0 (maximum volume).
+     */
     var volume: Float
+
+    /**
+     * Represents the current playback position as a normalized value between 0.0 and 1.0.
+     */
     var sliderPos: Float
+
+    /**
+     * Denotes whether the user is manually adjusting the playback position.
+     */
     var userDragging: Boolean
+
+    /**
+     * Specifies if the video should loop when it reaches the end.
+     */
     var loop: Boolean
     var playbackSpeed: Float
+
+    /**
+     * Provides the audio level for the left channel as a percentage.
+     */
     val leftLevel: Float
+
+    /**
+     * Provides the audio level for the right channel as a percentage.
+     */
     val rightLevel: Float
+
+    /**
+     * Returns the current playback position as a formatted string.
+     */
     val positionText: String
+
+    /**
+     * Returns the total duration of the video as a formatted string.
+     */
     val durationText: String
     val currentTime: Double
     var isFullscreen: Boolean
     val aspectRatio: Float
 
     // Functions to control playback
+    /**
+     * Starts or resumes video playback.
+     */
     fun play()
+
+    /**
+     * Pauses video playback.
+     */
     fun pause()
+
+    /**
+     * Stops playback and resets the player state.
+     */
     fun stop()
+
+    /**
+     * Seeks to a specific playback position based on the provided normalized value.
+     */
     fun seekTo(value: Float)
     fun toggleFullscreen()
 
     // Functions to manage media sources
+    /**
+     * Opens a video file or URL for playback.
+     */
     fun openUri(uri: String, initializeplayerState: InitialPlayerState = InitialPlayerState.PLAY)
     fun openFile(file: PlatformFile, initializeplayerState: InitialPlayerState = InitialPlayerState.PLAY)
 
@@ -67,8 +121,17 @@ expect open class VideoPlayerState() {
     fun disableSubtitles()
 
     // Cleanup
+    /**
+     * Releases resources used by the video player and disposes of the state.
+     */
     fun dispose()
 }
+
+/**
+ *  Create platform-specific video player state. Supported platforms include Windows,
+ *  macOS, and Linux.
+ */
+expect fun createVideoPlayerState(): VideoPlayerState
 
 /**
  * Creates and manages an instance of `VideoPlayerState` within a composable function, ensuring
@@ -80,7 +143,7 @@ expect open class VideoPlayerState() {
  */
 @Composable
 fun rememberVideoPlayerState(): VideoPlayerState {
-    val playerState = remember { VideoPlayerState() }
+    val playerState = remember { createVideoPlayerState() }
     DisposableEffect(Unit) {
         onDispose {
             playerState.dispose()

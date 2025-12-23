@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
+import androidx.annotation.OptIn
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -33,6 +34,9 @@ import io.github.vinceglb.filekit.AndroidFile
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.*
 
+@OptIn(UnstableApi::class)
+actual fun createVideoPlayerState(): VideoPlayerState = DefaultVideoPlayerState()
+
 /**
  * Logger for WebAssembly video player surface
  */
@@ -41,7 +45,7 @@ internal val androidVideoLogger = Logger.withTag("AndroidVideoPlayerSurface")
 
 @UnstableApi
 @Stable
-actual open class VideoPlayerState {
+open class DefaultVideoPlayerState: VideoPlayerState {
     private val context: Context = ContextProvider.getContext()
     internal var exoPlayer: ExoPlayer? = null
     private var updateJob: Job? = null
@@ -58,26 +62,26 @@ actual open class VideoPlayerState {
     private var wasPlayingBeforeScreenLock: Boolean = false
 
     private var _hasMedia by mutableStateOf(false)
-    actual val hasMedia: Boolean get() = _hasMedia
+    override val hasMedia: Boolean get() = _hasMedia
 
     // State properties
     private var _isPlaying by mutableStateOf(false)
-    actual val isPlaying: Boolean get() = _isPlaying
+    override val isPlaying: Boolean get() = _isPlaying
 
     private var _isLoading by mutableStateOf(false)
-    actual val isLoading: Boolean get() = _isLoading
+    override val isLoading: Boolean get() = _isLoading
 
     private var _error by mutableStateOf<VideoPlayerError?>(null)
-    actual val error: VideoPlayerError? get() = _error
+    override val error: VideoPlayerError? get() = _error
 
     private var _metadata = VideoMetadata()
-    actual val metadata: VideoMetadata get() = _metadata
+    override val metadata: VideoMetadata get() = _metadata
 
     // Subtitle state
-    actual var subtitlesEnabled by mutableStateOf(false)
-    actual var currentSubtitleTrack by mutableStateOf<SubtitleTrack?>(null)
-    actual val availableSubtitleTracks = mutableListOf<SubtitleTrack>()
-    actual var subtitleTextStyle by mutableStateOf(
+    override var subtitlesEnabled by mutableStateOf(false)
+    override var currentSubtitleTrack by mutableStateOf<SubtitleTrack?>(null)
+    override val availableSubtitleTracks = mutableListOf<SubtitleTrack>()
+    override var subtitleTextStyle by mutableStateOf(
         TextStyle(
             color = Color.White,
             fontSize = 18.sp,
@@ -86,12 +90,12 @@ actual open class VideoPlayerState {
         )
     )
 
-    actual var subtitleBackgroundColor by mutableStateOf(Color.Black.copy(alpha = 0.5f))
+    override var subtitleBackgroundColor by mutableStateOf(Color.Black.copy(alpha = 0.5f))
 
     private var playerView: PlayerView? = null
 
     // Select an external subtitle track
-    actual fun selectSubtitleTrack(track: SubtitleTrack?) {
+    override fun selectSubtitleTrack(track: SubtitleTrack?) {
         if (track == null) {
             disableSubtitles()
             return
@@ -110,7 +114,7 @@ actual open class VideoPlayerState {
         }
     }
 
-    actual fun disableSubtitles() {
+    override fun disableSubtitles() {
         currentSubtitleTrack = null
         subtitlesEnabled = false
 
@@ -146,7 +150,7 @@ actual open class VideoPlayerState {
 
     // Volume control
     private var _volume by mutableFloatStateOf(1f)
-    actual var volume: Float
+    override var volume: Float
         get() = _volume
         set(value) {
             _volume = value.coerceIn(0f, 1f)
@@ -155,7 +159,7 @@ actual open class VideoPlayerState {
 
     // Slider position
     private var _sliderPos by mutableFloatStateOf(0f)
-    actual var sliderPos: Float
+    override var sliderPos: Float
         get() = _sliderPos
         set(value) {
             _sliderPos = value.coerceIn(0f, 1000f)
@@ -165,11 +169,11 @@ actual open class VideoPlayerState {
         }
 
     // User interaction states
-    actual var userDragging by mutableStateOf(false)
+    override var userDragging by mutableStateOf(false)
 
     // Loop control
     private var _loop by mutableStateOf(false)
-    actual var loop: Boolean
+    override var loop: Boolean
         get() = _loop
         set(value) {
             _loop = value
@@ -178,7 +182,7 @@ actual open class VideoPlayerState {
 
     // Playback speed control
     private var _playbackSpeed by mutableFloatStateOf(1.0f)
-    actual var playbackSpeed: Float
+    override var playbackSpeed: Float
         get() = _playbackSpeed
         set(value) {
             _playbackSpeed = value.coerceIn(0.5f, 2.0f)
@@ -190,16 +194,16 @@ actual open class VideoPlayerState {
     // Audio levels
     private var _leftLevel by mutableFloatStateOf(0f)
     private var _rightLevel by mutableFloatStateOf(0f)
-    actual val leftLevel: Float get() = _leftLevel
-    actual val rightLevel: Float get() = _rightLevel
+    override val leftLevel: Float get() = _leftLevel
+    override val rightLevel: Float get() = _rightLevel
 
     // Aspect ratio
     private var _aspectRatio by mutableFloatStateOf(16f / 9f)
-    actual val aspectRatio: Float get() = _aspectRatio
+    override val aspectRatio: Float get() = _aspectRatio
 
     // Fullscreen state
     private var _isFullscreen by mutableStateOf(false)
-    actual var isFullscreen: Boolean
+    override var isFullscreen: Boolean
         get() = _isFullscreen
         set(value) {
             _isFullscreen = value
@@ -208,9 +212,9 @@ actual open class VideoPlayerState {
     // Time tracking
     private var _currentTime by mutableDoubleStateOf(0.0)
     private var _duration by mutableDoubleStateOf(0.0)
-    actual val positionText: String get() = formatTime(_currentTime)
-    actual val durationText: String get() = formatTime(_duration)
-    actual val currentTime: Double get() = _currentTime
+    override val positionText: String get() = formatTime(_currentTime)
+    override val durationText: String get() = formatTime(_duration)
+    override val currentTime: Double get() = _currentTime
 
 
     init {
@@ -508,13 +512,13 @@ actual open class VideoPlayerState {
         updateJob = null
     }
 
-    actual fun openUri(uri: String, initializeplayerState: InitialPlayerState) {
+    override fun openUri(uri: String, initializeplayerState: InitialPlayerState) {
         val mediaItemBuilder = MediaItem.Builder().setUri(uri)
         val mediaItem = mediaItemBuilder.build()
         openFromMediaItem(mediaItem, initializeplayerState)
     }
 
-    actual fun openFile(file: PlatformFile, initializeplayerState: InitialPlayerState) {
+    override fun openFile(file: PlatformFile, initializeplayerState: InitialPlayerState) {
         val mediaItemBuilder = MediaItem.Builder()
         val videoUri: Uri = when (val androidFile = file.androidFile) {
             is AndroidFile.UriWrapper -> androidFile.uri
@@ -563,7 +567,7 @@ actual open class VideoPlayerState {
         }
     }
 
-    actual fun play() {
+    override fun play() {
         synchronized(playerInitializationLock) {
             if (!isPlayerReleased) {
                 exoPlayer?.let { player ->
@@ -577,7 +581,7 @@ actual open class VideoPlayerState {
         }
     }
 
-    actual fun pause() {
+    override fun pause() {
         synchronized(playerInitializationLock) {
             if (!isPlayerReleased) {
                 exoPlayer?.pause()
@@ -585,7 +589,7 @@ actual open class VideoPlayerState {
         }
     }
 
-    actual fun stop() {
+    override fun stop() {
         synchronized(playerInitializationLock) {
             if (!isPlayerReleased) {
                 exoPlayer?.let { player ->
@@ -598,18 +602,18 @@ actual open class VideoPlayerState {
         }
     }
 
-    actual fun seekTo(value: Float) {
+    override fun seekTo(value: Float) {
         if (_duration > 0 && !isPlayerReleased) {
             val targetTime = (value / 1000.0) * _duration
             exoPlayer?.seekTo((targetTime * 1000).toLong())
         }
     }
 
-    actual fun clearError() {
+    override fun clearError() {
         _error = null
     }
 
-    actual fun toggleFullscreen() {
+    override fun toggleFullscreen() {
         _isFullscreen = !_isFullscreen
     }
 
@@ -687,7 +691,7 @@ actual open class VideoPlayerState {
         }
     }
 
-    actual fun dispose() {
+    override fun dispose() {
         synchronized(playerInitializationLock) {
             isPlayerReleased = true
             stopPositionUpdates()

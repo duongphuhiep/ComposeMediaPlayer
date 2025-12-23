@@ -31,7 +31,7 @@ actual fun VideoPlayerSurface(
     overlay: @Composable () -> Unit
 ) {
     VideoPlayerSurfaceInternal(
-        playerState = playerState,
+        playerState = playerState as DefaultVideoPlayerState,
         modifier = modifier,
         contentScale = contentScale,
         overlay = overlay,
@@ -49,7 +49,7 @@ fun VideoPlayerSurface(
     overlay: @Composable () -> Unit = {}
 ) {
     VideoPlayerSurfaceInternal(
-        playerState = playerState,
+        playerState = playerState as DefaultVideoPlayerState,
         modifier = modifier,
         contentScale = contentScale,
         overlay = overlay,
@@ -60,7 +60,7 @@ fun VideoPlayerSurface(
 @UnstableApi
 @Composable
 private fun VideoPlayerSurfaceInternal(
-    playerState: VideoPlayerState,
+    playerState: DefaultVideoPlayerState,
     modifier: Modifier,
     contentScale: ContentScale,
     surfaceType: SurfaceType,
@@ -132,7 +132,7 @@ private fun VideoPlayerSurfaceInternal(
 @UnstableApi
 @Composable
 private fun VideoPlayerContent(
-    playerState: VideoPlayerState,
+    playerState: DefaultVideoPlayerState,
     modifier: Modifier,
     overlay: @Composable () -> Unit,
     contentScale: ContentScale,

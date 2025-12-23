@@ -9,15 +9,12 @@ import io.github.kdroidfilter.composemediaplayer.mac.MacVideoPlayerState
 import io.github.kdroidfilter.composemediaplayer.windows.WindowsVideoPlayerState
 import io.github.vinceglb.filekit.PlatformFile
 
+actual fun createVideoPlayerState(): VideoPlayerState = DefaultVideoPlayerState()
 
 /**
  * Represents the state and behavior of a video player. This class provides properties
  * and methods to control video playback, manage the playback state, and interact with
  * platform-specific implementations.
- *
- * The actual implementation delegates its behavior to platform-specific video player
- * states based on the detected operating system. Supported platforms include Windows,
- * macOS, and Linux.
  *
  * Properties:
  * - `isPlaying`: Indicates whether the video is currently playing.
@@ -39,7 +36,7 @@ import io.github.vinceglb.filekit.PlatformFile
  * - `dispose()`: Releases resources used by the video player and disposes of the state.
  */
 @Stable
-actual open class VideoPlayerState {
+open class DefaultVideoPlayerState: VideoPlayerState {
     val delegate: PlatformVideoPlayerState = when {
         Platform.isWindows() -> WindowsVideoPlayerState()
         Platform.isMac() -> MacVideoPlayerState()
@@ -47,76 +44,75 @@ actual open class VideoPlayerState {
         else -> throw UnsupportedOperationException("Unsupported platform")
     }
 
-    actual open val hasMedia: Boolean get() = delegate.hasMedia
-    actual open val isPlaying: Boolean get() = delegate.isPlaying
-    actual open val isLoading: Boolean get() = delegate.isLoading
-    actual open val error: VideoPlayerError? get() = delegate.error
-    actual open var volume: Float
+    override val hasMedia: Boolean get() = delegate.hasMedia
+    override val isPlaying: Boolean get() = delegate.isPlaying
+    override val isLoading: Boolean get() = delegate.isLoading
+    override val error: VideoPlayerError? get() = delegate.error
+    override var volume: Float
         get() = delegate.volume
         set(value) {
             delegate.volume = value
         }
-    actual open var sliderPos: Float
+    override var sliderPos: Float
         get() = delegate.sliderPos
         set(value) {
             delegate.sliderPos = value
         }
-    actual open var userDragging: Boolean
+    override var userDragging: Boolean
         get() = delegate.userDragging
         set(value) {
             delegate.userDragging = value
         }
-    actual open var loop: Boolean
+    override var loop: Boolean
         get() = delegate.loop
         set(value) {
             delegate.loop = value
         }
 
-    actual open var playbackSpeed: Float
+    override var playbackSpeed: Float
         get() = delegate.playbackSpeed
         set(value) {
             delegate.playbackSpeed = value
         }
 
-    actual open var isFullscreen: Boolean
+    override var isFullscreen: Boolean
         get() = delegate.isFullscreen
         set(value) {
             delegate.isFullscreen = value
         }
 
-    actual open val metadata: VideoMetadata get() = delegate.metadata
-    actual open val aspectRatio: Float get() = delegate.aspectRatio
+    override val metadata: VideoMetadata get() = delegate.metadata
+    override val aspectRatio: Float get() = delegate.aspectRatio
 
-    actual var subtitlesEnabled = delegate.subtitlesEnabled
-    actual var currentSubtitleTrack : SubtitleTrack? = delegate.currentSubtitleTrack
-    actual val availableSubtitleTracks  = delegate.availableSubtitleTracks
-    actual var subtitleTextStyle: TextStyle
+    override var subtitlesEnabled = delegate.subtitlesEnabled
+    override var currentSubtitleTrack : SubtitleTrack? = delegate.currentSubtitleTrack
+    override val availableSubtitleTracks  = delegate.availableSubtitleTracks
+    override var subtitleTextStyle: TextStyle
         get() = delegate.subtitleTextStyle
         set(value) {
             delegate.subtitleTextStyle = value
         }
-    actual var subtitleBackgroundColor: Color
+    override var subtitleBackgroundColor: Color
         get() = delegate.subtitleBackgroundColor
         set(value) {
             delegate.subtitleBackgroundColor = value
         }
-    actual fun selectSubtitleTrack(track: SubtitleTrack?) = delegate.selectSubtitleTrack(track)
-    actual fun disableSubtitles() = delegate.disableSubtitles()
+    override fun selectSubtitleTrack(track: SubtitleTrack?) = delegate.selectSubtitleTrack(track)
+    override fun disableSubtitles() = delegate.disableSubtitles()
 
-    actual open val leftLevel: Float get() = delegate.leftLevel
-    actual open val rightLevel: Float get() = delegate.rightLevel
-    actual open val positionText: String get() = delegate.positionText
-    actual open val durationText: String get() = delegate.durationText
-    actual open val currentTime: Double get() = delegate.currentTime
+    override val leftLevel: Float get() = delegate.leftLevel
+    override val rightLevel: Float get() = delegate.rightLevel
+    override val positionText: String get() = delegate.positionText
+    override val durationText: String get() = delegate.durationText
+    override val currentTime: Double get() = delegate.currentTime
 
-    actual open fun openUri(uri: String, initializeplayerState: InitialPlayerState) = delegate.openUri(uri, initializeplayerState)
-    actual open fun openFile(file: PlatformFile, initializeplayerState: InitialPlayerState) = delegate.openUri(file.file.path, initializeplayerState)
-    actual open fun play() = delegate.play()
-    actual open fun pause() = delegate.pause()
-    actual open fun stop() = delegate.stop()
-    actual open fun seekTo(value: Float) = delegate.seekTo(value)
-    actual open fun toggleFullscreen() = delegate.toggleFullscreen()
-    actual open fun dispose() = delegate.dispose()
-    actual open fun clearError() = delegate.clearError()
-
+    override fun openUri(uri: String, initializeplayerState: InitialPlayerState) = delegate.openUri(uri, initializeplayerState)
+    override fun openFile(file: PlatformFile, initializeplayerState: InitialPlayerState) = delegate.openUri(file.file.path, initializeplayerState)
+    override fun play() = delegate.play()
+    override fun pause() = delegate.pause()
+    override fun stop() = delegate.stop()
+    override fun seekTo(value: Float) = delegate.seekTo(value)
+    override fun toggleFullscreen() = delegate.toggleFullscreen()
+    override fun dispose() = delegate.dispose()
+    override fun clearError() = delegate.clearError()
 }
